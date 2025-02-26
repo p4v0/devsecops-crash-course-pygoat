@@ -29,10 +29,13 @@ jobs: # Defino los jobs, un conjunto de pasos
                              # -o bandit-report.json → Guarda el resultado en un archivo llamado bandit-report.json.
    - name: Upload Artifact
      uses: actions/upload-artifact@v3 # actions/upload-artifact se usa para guardar archivos generados en el workflow y hacerlos accesibles desde la pestaña "Artifacts"
-     if: always()
+     if: always() # esta propiedad es para que este paso se ejecute siempre aún cuando los pasos anteriores fallen, porque por diseño cuando un paso falla, todos 
+                  # los pasos que haya por debajo del que falló se omiten, si le digo if always se ejcutará siempre así los anteriores pasos fallen
+                  # esto es necesario porque el escaneo en bandit "falla" por definición si encuentra vulnerabilidades, que es lo más probable y como necesito
+                  # guardar el resultado, entonces este paso de exportar el artefacto siempre debo correrlo así Bandit "falle"
      with:
-      name: bandit-findings
-      path: bandit-report.json
+      name: bandit-findings # nombre del artefacto
+      path: bandit-report.json # identifico el artefacto dentro del workflow
                                       # "upload" almacena temporalmente en GitHub un archivo generado en la ejecuión del worflow, para que puedas descargarlo después.
                                       # Un artifact es cualquier archivo generado durante el workflow. Puede ser:
                                       # ✅ Un reporte de seguridad (bandit-report.json, dependency-check-report.html).
