@@ -57,6 +57,13 @@ jobs: # Defino los jobs, un conjunto de pasos
 
    - name: Build Docker Image
      run: docker build -f Dockerfile -t myapp:latest . # hago el build
+                 # docker build → Inicia la construcción de una imagen Docker.
+                 # -f Dockerfile → Especifica el archivo Dockerfile que se usará para la construcción.
+                 #    Si el Dockerfile está en el mismo directorio, este flag no es necesario.
+                 # -t myapp:latest → Asigna un nombre (myapp) y una etiqueta (latest) a la imagen.
+                  #     latest es la etiqueta por defecto en Docker, pero puedes cambiarla (v1.0, dev, etc.).
+                 # . (punto) → Indica que el contexto de construcción es el directorio actual.
+                  #     Docker usará los archivos de este directorio según lo definido en el Dockerfile.
 
    # - name: Docker Scout Scan
      # run: |
