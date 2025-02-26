@@ -22,8 +22,8 @@ jobs: # Defino los jobs, un conjunto de pasos
    - name: Run Bandit Scan 
      run: bandit -ll -ii -r . -f json -o bandit-report.json # este paso corre el comando bandit con varias banderas para esanear mi código con bandit (haciendo el paso de SAST de DEvSecOps)
                              # bandit → Ejecuta la herramienta Bandit (Escanea tu código en busca de vulnerabilidades en Pytho)
-                             # -ll → Muestra solo errores y advertencias de nivel ALTO y MEDIO (evita los de bajo riesgo).
-                             # -ii → Desactiva la información sobre cada archivo analizado (para reducir ruido en la salida).
+                             # -ll → Muestra solo hallazgos de severidad nivel ALTO y MEDIO (evita los de bajo riesgo).
+                             # -ii → sólo hallazgos de confiabilidad media y alta (para reducir ruido en la salida).
                              # -r . → Ejecuta el escaneo de forma recursiva en todos los archivos Python del directorio actual (.).
                              # -f json → Genera el reporte en formato JSON en lugar de texto plano.
                              # -o bandit-report.json → Guarda el resultado en un archivo llamado bandit-report.json.
