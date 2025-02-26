@@ -1,20 +1,20 @@
-name: CI # :D
+name: CI # Nombre del workflow = un conjunto de tareas a ejecutar
 
-on: [push]
+on: [push] # Se ejecuta cuando hay un push a cualquier branch
 
-jobs:
- sast_scan:
-   name: Run Bandit Scan
-   runs-on: ubuntu-latest
+jobs: # Defino los jobs, un conjunto de pasos
+ sast_scan: # Defino un job puntual
+   name: Run Bandit Scan # Nombre de este job en particular
+   runs-on: ubuntu-latest # Se ejecuta en un runner (VM/Container) de Ubuntu última versión
 
-   steps:
-   - name: Checkout code
-     uses: actions/checkout@v2
-
-   - name: Set up Python
-     uses: actions/setup-python@v2
+   steps: # Defino los pasos a ejecutar en este job
+   - name: Checkout code # Nombre el paso. Checkout es para copiar el código del repo al runner, pues es una máquina fresca/sin nada que se invoca para correr este job.
+     uses: actions/checkout@v2 # defino qué hace el paso con "uses", aquí van las acciones de GitHub u otros proveedores.
+                               # (under "actions/* reusable actions are hosted)
+   - name: Set up Python # Como nada está instalado en el runner inicialmente, también debo instalar cuanta dependencia y software necesite para mi job
+     uses: actions/setup-python@v2 # Paso que instala Python en el runner
      with:
-       python-version: 3.8
+       python-version: 3.8 # Le digo qué versión de Python quiero instalar, esta acción también se encuentra en el marketplace de acciones de la derecha
 
    - name: Install Bandit
      run: pip install bandit
