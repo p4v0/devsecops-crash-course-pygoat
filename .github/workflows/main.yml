@@ -28,11 +28,16 @@ jobs: # Defino los jobs, un conjunto de pasos
                              # -f json → Genera el reporte en formato JSON en lugar de texto plano.
                              # -o bandit-report.json → Guarda el resultado en un archivo llamado bandit-report.json.
    - name: Upload Artifact
-     uses: actions/upload-artifact@v3 
+     uses: actions/upload-artifact@v3 # actions/upload-artifact se usa para guardar archivos generados en el workflow y hacerlos accesibles desde la pestaña "Artifacts"
      if: always()
      with:
       name: bandit-findings
       path: bandit-report.json
+                                      # "upload" almacena temporalmente en GitHub un archivo generado en la ejecuión del worflow, para que puedas descargarlo después.
+                                      # Un artifact es cualquier archivo generado durante el workflow. Puede ser:
+                                      # ✅ Un reporte de seguridad (bandit-report.json, dependency-check-report.html).
+                                      # ✅ Un binario o ejecutable compilado.
+                                      # ✅ Logs o resultados de pruebas.
 
  image_scan:
    name: Build Image and Run Image Scan
