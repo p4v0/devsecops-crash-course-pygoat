@@ -42,21 +42,21 @@ jobs: # Defino los jobs, un conjunto de pasos
                                       # ✅ Un binario o ejecutable compilado.
                                       # ✅ Logs o resultados de pruebas.
 
- image_scan:
+ image_scan: # defino otro job para generar la imagen Docker y escanearla
    name: Build Image and Run Image Scan
-   runs-on: ubuntu-latest
+   runs-on: ubuntu-latest # defino el runner
 
-   steps:
+   steps: # defino los pasos
    - name: Checkout code
-     uses: actions/checkout@v2
+     uses: actions/checkout@v2 # traigo el código del proyecto al runner
 
    - name: Set up Docker
-     uses: docker-practice/actions-setup-docker@v1
+     uses: docker-practice/actions-setup-docker@v1 # instalo docker
      with:
       docker_version: '20.10.7'
 
    - name: Build Docker Image
-     run: docker build -f Dockerfile -t myapp:latest .
+     run: docker build -f Dockerfile -t myapp:latest . # hago el build
 
    # - name: Docker Scout Scan
      # run: |
@@ -66,7 +66,7 @@ jobs: # Defino los jobs, un conjunto de pasos
        # docker scout quickview
        # docker scout cves
 
-   - name: Docker Scout Scan
+   - name: Docker Scout Scan # 
      uses: docker/scout-action@v1.0.9
      with:
        dockerhub-user: ${{ secrets.REPO_USER }}
