@@ -88,6 +88,7 @@ jobs: # Defino los jobs, job = un conjunto de pasos
        command: quickview,cves # defino los comandos a usar una vez isntale Scout
        only-severities: critical,high # filtro el resultado sólo a vulns de severidad crítica y media
        sarif-file: scout-report.sarif # archivo de salida en formato sarif (un formato especial de scout que luego deja analizar más fácil en github)
+       exit-code: true
 
    - name: Upload Artifact
      uses: actions/upload-artifact@v4 # genero el artefacto (exporto el archivo fuera del runner a GitHub)
