@@ -87,14 +87,14 @@ jobs: # Defino los jobs, job = un conjunto de pasos
        dockerhub-password: ${{ secrets.REPO_PWD }} # leo mis pwd del secreto
        command: quickview,cves # defino los comandos a usar una vez isntale Scout
        only-severities: critical,high # filtro el resultado sólo a vulns de severidad crítica y media
-       sarif-file: scout-report.sarif # archivo de salida
+       sarif-file: scout-report.sarif # archivo de salida en formato sarif (un formato especial de scout que luego deja analizar más fácil en github)
 
    - name: Upload Artifact
-     uses: actions/upload-artifact@v3
-     if: always()
+     uses: actions/upload-artifact@v3 # genero el artefacto (exporto el archivo fuera del runner a GitHub)
+     if: always() # correr siempre este paso, así el anterior "falle"
      with:
-       name: docker-scout-findings
-       path: scout-report.sarif
+       name: docker-scout-findings # nombre del artefacto
+       path: scout-report.sarif # archivo para generar el artefacto
 
 
 
