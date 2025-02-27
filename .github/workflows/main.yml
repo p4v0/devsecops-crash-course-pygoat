@@ -2,25 +2,25 @@ name: CI # Nombre del workflow = un conjunto de tareas a ejecutar
 
 on: [push] # Se ejecuta cuando hay un push a cualquier branch
 
-jobs: # Defino los jobs, un conjunto de pasos
+jobs: # Defino los jobs, job = un conjunto de pasos
  sast_scan: # Defino un job puntual
    name: Run Bandit Scan # Nombre de este job en particular
    runs-on: ubuntu-latest # Se ejecuta en un runner (VM/Container) de Ubuntu última versión
 
    steps: # Defino los pasos a ejecutar en este job
-   - name: Checkout code # Nombre el paso. Checkout es para copiar el código del repo al runner, pues es una máquina fresca/sin nada que se invoca para correr este job.
+   - name: Checkout code # Nombre del paso. Checkout es para copiar el código del repo al runner, pues es una máquina fresca/sin nada que se invoca para correr este job.
      uses: actions/checkout@v2 # defino qué hace el paso con "uses", aquí van las acciones de GitHub u otros proveedores.
-                               # (under "actions/* reusable actions are hosted)
+                               # (under "actions/" reusable actions are hosted)
    - name: Set up Python # Como nada está instalado en el runner inicialmente, también debo instalar cuanta dependencia y software necesite para mi job
      uses: actions/setup-python@v2 # Paso que instala Python en el runner
      with:
-       python-version: 3.8 # Le digo qué versión de Python quiero instalar, esta acción también se encuentra en el marketplace de acciones de la derecha
+       python-version: 3.8 # Le digo qué versión de Python quiero instalar, cada acción se encuentra docuemntada en el marketplace de acciones de la derecha
 
    - name: Install Bandit
      run: pip install bandit # en este paso instalamos bandit con pip
 
    - name: Run Bandit Scan 
-     run: bandit -ll -ii -r . -f json -o bandit-report.json # este paso corre el comando bandit con varias banderas para esanear mi código con bandit (haciendo el paso de SAST de DEvSecOps)
+     run: bandit -ll -ii -r . -f json -o bandit-report.json # este paso corre el comando bandit con varias banderas para escanear mi código en busca de vulns (haciendo el paso de SAST de DEvSecOps)
                              # bandit → Ejecuta la herramienta Bandit (Escanea tu código en busca de vulnerabilidades en Pytho)
                              # -ll → Muestra solo hallazgos de severidad nivel ALTO y MEDIO (evita los de bajo riesgo).
                              # -ii → sólo hallazgos de confiabilidad media y alta (para reducir ruido en la salida).
@@ -28,14 +28,14 @@ jobs: # Defino los jobs, un conjunto de pasos
                              # -f json → Genera el reporte en formato JSON en lugar de texto plano.
                              # -o bandit-report.json → Guarda el resultado en un archivo llamado bandit-report.json.
    - name: Upload Artifact
-     uses: actions/upload-artifact@v3 # actions/upload-artifact se usa para guardar archivos generados en el workflow y hacerlos accesibles desde la pestaña "Artifacts"
+     uses: actions/upload-artifact@v3 # actions/upload-artifact se usa para guardar archivos generados en el workflow y hacerlos accesibles desde "Artifacts" en la pestaña "Actions" de GitHub
      if: always() # esta propiedad es para que este paso se ejecute siempre aún cuando los pasos anteriores fallen, porque por diseño cuando un paso falla, todos 
-                  # los pasos que haya por debajo del que falló se omiten, si le digo if always se ejcutará siempre así los anteriores pasos fallen
-                  # esto es necesario porque el escaneo en bandit "falla" por definición si encuentra vulnerabilidades, que es lo más probable y como necesito
+                  # Por diseño, los pasos que haya por debajo del que falló se omiten, si le digo if: always(), se ejcutará siempre así los anteriores pasos fallen
+                  # esto es necesario porque el escaneo en bandit "falla" (por definición) si encuentra vulnerabilidades, que es lo más probable y como necesito
                   # guardar el resultado, entonces este paso de exportar el artefacto siempre debo correrlo así Bandit "falle"
      with:
-      name: bandit-findings # nombre del artefacto
-      path: bandit-report.json # identifico el artefacto dentro del workflow
+      name: bandit-findings # nombre del artefacto que generaré
+      path: bandit-report.json # identifico el objeto dentro del workflow con el que generaré el artefacto 
                                       # "upload" almacena temporalmente en GitHub un archivo generado en la ejecuión del worflow, para que puedas descargarlo después.
                                       # Un artifact es cualquier archivo generado durante el workflow. Puede ser:
                                       # ✅ Un reporte de seguridad (bandit-report.json, dependency-check-report.html).
@@ -43,12 +43,14 @@ jobs: # Defino los jobs, un conjunto de pasos
                                       # ✅ Logs o resultados de pruebas.
 
  image_scan: # defino otro job para generar la imagen Docker y escanearla
+               # lo chevere de definir otro rol es que este no espera a que los jobs previos se ejecuten, sino que se ejecutan en paralelo, por lo que el tiempo general para completar
+               # el workflow se reduce!
    name: Build Image and Run Image Scan
    runs-on: ubuntu-latest # defino el runner
 
    steps: # defino los pasos
    - name: Checkout code
-     uses: actions/checkout@v2 # traigo el código del proyecto al runner
+     uses: actions/checkout@v2 # traigo el código del proyecto al runner de este job
 
    - name: Set up Docker
      uses: docker-practice/actions-setup-docker@v1 # instalo docker
@@ -66,21 +68,26 @@ jobs: # Defino los jobs, un conjunto de pasos
                   #     Docker usará los archivos de este directorio según lo definido en el Dockerfile.
 
    # - name: Docker Scout Scan
-     # run: |
-       # curl -fsSL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh -o install-scout.sh
-       # sh install-scout.sh
-       # echo ${{ secrets.REPO_PWD }} | docker login -u ${{ secrets.REPO_USER }} --password-stdin
-       # docker scout quickview
-       # docker scout cves
+     # run: | # en este paso, ejecuto varios comandos en el runner línea por línea para descargar, instalar y correr Scout... esta es una forma "más manual" la otra es mediante acciones de github ya definidas!!
+       # curl -fsSL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh -o install-scout.sh # desargar docker scout CLI en un archivo de shell install-scout.sh
+       # sh install-scout.sh # instalar scout
+       # echo ${{ secrets.REPO_PWD }} | docker login -u ${{ secrets.REPO_USER }} --password-stdin # acá me loggeo con el usuario y contraseña guardado en los secretos de actions
+         # los secretos se referencian en los workflows como "${{ secrets.NOMBRE_SECRET }}" con esto traigo el valor del secreto llamado NOMBRE_SECRET
+         # echo ${{ secrets.REPO_PWD }} me trae el valor del pwd y le hago pipe ( | ) al comando del login
+         # "docker login -u" es apra loggearse a docker poniendo usuario y contraseña, el usuario se lee del secreto guardado directamente y el PWD desde la stdin
+         # --password-stdin lee el pasword traído con echo. con esto, el password se pasa de forma segura a través de un pipe (|) y no queda registrado en logs de Actions!!
+         # además docker login -p está obsoleto en algunas versiones de Docker por razones de seguridad. --password-stdin es la forma recomendada por Docker.
+       # docker scout quickview # comando para escanear con scout
+       # docker scout cves # otro comando para escanear
 
    - name: Docker Scout Scan # 
-     uses: docker/scout-action@v1.0.9
+     uses: docker/scout-action@v1.0.9 # paso para descargar, instalar y correr Scout... mediante las acciones reusables del marketplace GitHub Actions (alternativa al paso anterior)!
      with:
-       dockerhub-user: ${{ secrets.REPO_USER }}
-       dockerhub-password: ${{ secrets.REPO_PWD }}
-       command: quickview,cves
-       only-severities: critical,high
-       sarif-file: scout-report.sarif
+       dockerhub-user: ${{ secrets.REPO_USER }} # leo mi usuario del secreto
+       dockerhub-password: ${{ secrets.REPO_PWD }} # leo mis pwd del secreto
+       command: quickview,cves # defino los comandos a usar una vez isntale Scout
+       only-severities: critical,high # filtro el resultado sólo a vulns de severidad crítica y media
+       sarif-file: scout-report.sarif # archivo de salida
 
    - name: Upload Artifact
      uses: actions/upload-artifact@v3
