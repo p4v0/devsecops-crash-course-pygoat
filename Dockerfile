@@ -1,4 +1,5 @@
-FROM python:3.11.0b1-buster
+# FROM python:3.11.0b1-buster imagen original, daba errores con Action de docker oficial...
+FROM python:3.7-buster
 
 # set work directory
 WORKDIR /app
