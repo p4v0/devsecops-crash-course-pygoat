@@ -28,7 +28,7 @@ jobs: # Defino los jobs, job = un conjunto de pasos
                              # -f json → Genera el reporte en formato JSON en lugar de texto plano.
                              # -o bandit-report.json → Guarda el resultado en un archivo llamado bandit-report.json.
    - name: Upload Artifact
-     uses: actions/upload-artifact@v3 # actions/upload-artifact se usa para guardar archivos generados en el workflow y hacerlos accesibles desde "Artifacts" en la pestaña "Actions" de GitHub
+     uses: actions/upload-artifact@v4 # actions/upload-artifact se usa para guardar archivos generados en el workflow y hacerlos accesibles desde "Artifacts" en la pestaña "Actions" de GitHub
      if: always() # esta propiedad es para que este paso se ejecute siempre aún cuando los pasos anteriores fallen, porque por diseño cuando un paso falla, todos 
                   # Por diseño, los pasos que haya por debajo del que falló se omiten, si le digo if: always(), se ejcutará siempre así los anteriores pasos fallen
                   # esto es necesario porque el escaneo en bandit "falla" (por definición) si encuentra vulnerabilidades, que es lo más probable y como necesito
@@ -90,7 +90,7 @@ jobs: # Defino los jobs, job = un conjunto de pasos
        sarif-file: scout-report.sarif # archivo de salida en formato sarif (un formato especial de scout que luego deja analizar más fácil en github)
 
    - name: Upload Artifact
-     uses: actions/upload-artifact@v3 # genero el artefacto (exporto el archivo fuera del runner a GitHub)
+     uses: actions/upload-artifact@v4 # genero el artefacto (exporto el archivo fuera del runner a GitHub)
      if: always() # correr siempre este paso, así el anterior "falle"
      with:
        name: docker-scout-findings # nombre del artefacto
