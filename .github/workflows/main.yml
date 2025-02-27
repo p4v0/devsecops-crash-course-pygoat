@@ -1,6 +1,6 @@
 name: CI # Nombre del workflow = un conjunto de tareas a ejecutar
 
-on: [push] # Se ejecuta cuando hay un push a cualquier branch
+on: [push] # Se ejecuta cuando hay un push a cualquier branch o un commit :)
 
 jobs: # Defino los jobs, job = un conjunto de pasos
  sast_scan: # Defino un job puntual
