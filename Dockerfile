@@ -1,16 +1,19 @@
-# FROM python:3.11.0b1-buster imagen original, daba errores con Action de docker oficial...
+						 
 FROM python:3.7-buster
 
 # set work directory
 WORKDIR /app
 
+# Agregar repositorio de Snapshots para paquetes antiguos
+RUN echo "deb http://snapshot.debian.org/archive/debian/20220910T000000Z buster main" > /etc/apt/sources.list \
+    && echo "Acquire::Check-Valid-Until false;" > /etc/apt/apt.conf.d/99no-check-valid-until
 
-# dependencies for psycopg2
+# Actualizar e instalar paquetes vulnerables
 RUN apt-get update && apt-get install --no-install-recommends -y \
     dnsutils=1:9.11.5.P4+dfsg-5.1+deb10u9 \
     libpq-dev=11.16-0+deb10u1 \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 
 # Set environment variables
